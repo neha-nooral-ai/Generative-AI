@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <h2>Generate Your Custom Workout Plan</h2>
+    <form action="/workout-plan" method="POST" class="plan-form">
+        <div class="form-group">
+            <label for="age">Age:</label>
+            <input type="number" id="age" name="age" min="10" max="100" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="gender">Gender:</label>
+            <select id="gender" name="gender" required>
+                <option value="" disabled selected>Select gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="weight">Weight (kg):</label>
+            <input type="number" id="weight" name="weight" min="30" max="200" step="0.1" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="height">Height (cm):</label>
+            <input type="number" id="height" name="height" min="100" max="250" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="fitness_level">Fitness Level:</label>
+            <select id="fitness_level" name="fitness_level" required>
+                <option value="" disabled selected>Select fitness level</option>
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="goal">Fitness Goal:</label>
+            <select id="goal" name="goal" required>
+                <option value="" disabled selected>Select fitness goal</option>
+                <option value="weight_loss">Weight Loss</option>
+                <option value="muscle_gain">Muscle Gain</option>
+                <option value="strength">Strength Training</option>
+                <option value="endurance">Endurance</option>
+                <option value="general_fitness">General Fitness</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="duration">Plan Duration:</label>
+            <select id="duration" name="duration" required>
+                <option value="" disabled selected>Select plan duration</option>
+                <option value="1 week">1 Week</option>
+                <option value="3 weeks">3 Weeks</option>
+                <option value="1 month">1 Month</option>
+                <option value="3 months">3 Months</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="workout_days">Workout Days per Week:</label>
+            <select id="workout_days" name="workout_days" required>
+                <option value="" disabled selected>Select workout days</option>
+                <option value="3">3 Days</option>
+                <option value="4">4 Days</option>
+                <option value="5">5 Days</option>
+                <option value="6">6 Days</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="equipment">Available Equipment (comma separated):</label>
+            <input type="text" id="equipment" name="equipment" 
+                   placeholder="e.g., dumbbells, resistance bands, pull-up bar">
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Generate Workout Plan</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_styles %}
+<style>
+.form-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.form-container h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 2rem;
+}
+
+.plan-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.form-group input,
+.form-group select {
+    padding: 0.75rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #4e73df;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(78, 115, 223, 0.2);
+}
+
+.btn-primary {
+    background-color: #4e73df;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    margin-top: 1rem;
+}
+
+.btn-primary:hover {
+    background-color: #3a5ccc;
+}
+
+.btn-primary:active {
+    transform: translateY(1px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .form-container {
+        padding: 1rem;
+    }
+    
+    .btn-primary {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}

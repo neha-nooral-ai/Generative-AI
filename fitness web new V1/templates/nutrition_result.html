@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="plan-header text-center mb-5">
+        <h1 class="display-4">{{ title }}</h1>
+        <p class="lead">Personalized nutrition plan for your health goals</p>
+    </div>
+
+    {% if error %}
+        <div class="alert alert-danger text-center" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            {{ error }}
+            <br><br>
+            <strong>Troubleshooting Tips:</strong>
+            <ul class="text-start mt-2">
+                <li>Check your internet connection</li>
+                <li>Try again in a few minutes (API might be busy)</li>
+                <li>Contact support if the issue persists</li>
+            </ul>
+        </div>
+    {% elif plan %}
+    <div class="nutrition-plan-content">
+        <div class="alert alert-info" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            This nutrition plan is generated based on your personal information and goals. Always consult with a healthcare professional before making significant dietary changes.
+        </div>
+
+        {% if summary %}
+        <div class="plan-summary card mb-4">
+            <div class="card-header">
+                <h3 class="mb-0">Plan Overview</h3>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3 col-6">
+                        <div class="summary-item">
+                            <span class="summary-label">Duration</span>
+                            <span class="summary-value">{{ summary.duration }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="summary-item">
+                            <span class="summary-label">Meals/Day</span>
+                            <span class="summary-value">{{ summary.meals_per_day }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="summary-item">
+                            <span class="summary-label">Diet Type</span>
+                            <span class="summary-value">{{ summary.dietary_preference|title }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="summary-item">
+                            <span class="summary-label">Goal</span>
+                            <span class="summary-value">{{ summary.goal|replace('_', ' ')|title }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="nutrition-plan-text" id="nutrition-plan-content">
+            {{ plan|safe }}
+        </div>
+    </div>
+    {% else %}
+        <div class="alert alert-warning text-center" role="alert">
+            No nutrition plan was generated. Please try again.
+        </div>
+    {% endif %}
+
+    <div class="plan-actions text-center mt-5">
+        <a href="/nutrition-plan" class="btn btn-primary me-2">
+            <i class="fas fa-sync-alt me-2"></i>Generate New Plan
+        </a>
+        <a href="/" class="btn btn-secondary">
+            <i class="fas fa-home me-2"></i>Back to Home
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const nutritionContent = document.getElementById('nutrition-plan-content');
+    if (nutritionContent) {
+        // Get the raw text content
+        let content = nutritionContent.innerHTML;
+
+        // Split by day patterns and format each day
+        const dayPattern = /(DAY \d+:?[^]*?)(?=(DAY \d+:|$))/gi;
+        const days = content.split(dayPattern).filter(day => day.trim());
+
+        if (days.length > 1) {
+            let formattedContent = '';
+            for (let i = 0; i < days.length; i += 2) {
+                const dayHeader = days[i].trim();
+                let dayContent = days[i + 1] ? days[i + 1].trim() : '';
+
+                if (dayHeader && dayContent) {
+                    // Format meals within the day
+                    dayContent = formatMeals(dayContent);
+
+                    formattedContent += `
+                        <div class="nutrition-day">
+                            <div class="nutrition-day-header">${dayHeader}</div>
+                            <div class="day-content">${dayContent}</div>
+                        </div>
+                    `;
+                }
+            }
+            nutritionContent.innerHTML = formattedContent;
+        } else {
+            // If pattern matching fails, just ensure line breaks
+            content = content.replace(/DAY \d+:/g, '<br><strong>$&</strong>');
+            nutritionContent.innerHTML = content;
+        }
+    }
+});
+
+function formatMeals(content) {
+    // Split meals and format them
+    const mealPattern = /(Breakfast|Lunch|Dinner|Snack):\s*([^]*?)(?=(Breakfast|Lunch|Dinner|Snack):|$)/gi;
+    const meals = content.split(mealPattern).filter(meal => meal.trim());
+
+    if (meals.length > 1) {
+        let formattedMeals = '';
+        for (let i = 0; i < meals.length; i += 2) {
+            const mealType = meals[i].trim();
+            const mealContent = meals[i + 1] ? meals[i + 1].trim() : '';
+
+            if (mealType && mealContent) {
+                formattedMeals += `
+                    <div class="meal-section">
+                        <div class="meal-header">${mealType}</div>
+                        <div class="meal-details">${mealContent}</div>
+                    </div>
+                `;
+            }
+        }
+        return formattedMeals;
+    }
+
+    return content;
+}
+</script>
+{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+    .plan-header h1 {
+        font-weight: 300;
+        color: #2c3e50;
+    }
+    .nutrition-plan-content {
+        background: #fff;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .nutrition-plan-text {
+        line-height: 1.8;
+        font-size: 1.1rem;
+        white-space: pre-line;
+    }
+    .nutrition-plan-text h1,
+    .nutrition-plan-text h2,
+    .nutrition-plan-text h3,
+    .nutrition-plan-text h4 {
+        color: #2c3e50;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+    }
+    .nutrition-plan-text ul,
+    .nutrition-plan-text ol {
+        margin-bottom: 1rem;
+        padding-left: 2rem;
+    }
+    .nutrition-plan-text li {
+        margin-bottom: 0.5rem;
+    }
+    .alert-info {
+        border-left: 4px solid #17a2b8;
+    }
+    .plan-actions .btn {
+        padding: 0.75rem 2rem;
+        font-size: 1.1rem;
+    }
+
+    /* Plan Summary Styling */
+    .plan-summary .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #007bff;
+    }
+
+    .summary-item {
+        padding: 1rem;
+    }
+
+    .summary-label {
+        display: block;
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 0.3rem;
+    }
+
+    .summary-value {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    /* Enhanced styling for nutrition plan */
+    .nutrition-day {
+        margin-bottom: 2rem;
+        padding: 2rem;
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        position: relative;
+    }
+
+    .nutrition-day::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        border-radius: 12px 0 0 12px;
+    }
+
+    .nutrition-day-header {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #007bff;
+        margin-bottom: 1.5rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+    }
+
+    .nutrition-day-header::after {
+        content: '';
+        flex: 1;
+        height: 2px;
+        background: linear-gradient(90deg, #007bff, transparent);
+        margin-left: 1rem;
+    }
+
+    .day-content {
+        line-height: 1.7;
+        font-size: 1rem;
+    }
+
+    .meal-section {
+        margin-bottom: 2rem;
+        padding: 1rem;
+        background: #fff;
+        border-radius: 8px;
+        border-left: 3px solid #28a745;
+    }
+
+    .meal-header {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #28a745;
+        margin-bottom: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .meal-details {
+        padding-left: 0;
+        line-height: 1.6;
+        color: #495057;
+    }
+
+    .meal-details p {
+        margin-bottom: 0.6rem;
+    }
+
+    .meal-details br {
+        margin-bottom: 0.4rem;
+    }
+
+    .nutrition-plan-text br {
+        margin-bottom: 0.5rem;
+    }
+
+    .nutrition-plan-text p {
+        margin-bottom: 1rem;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .nutrition-day {
+            padding: 1.5rem;
+        }
+
+        .nutrition-day-header {
+            font-size: 1.2rem;
+        }
+
+        .meal-section {
+            padding: 0.8rem;
+        }
+    }
+</style>
+{% endblock %}
